@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-class UsuarioRequest extends FormRequest
+class UserRequest extends FormRequest
 {
     public function authorize(): bool
     {
