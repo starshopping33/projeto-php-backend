@@ -3,21 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class planos extends Model
+class Planos extends Model
 {
-    protected $fillable = [
-        'nome',
-        'preco',
-        'duracao_em_dias',
-        'descricao'
+    use SoftDeletes;
 
+    protected $table = 'plans';
+
+    protected $fillable = [
+        'name',
+        'description',
+        'tier',
+        'is_active'
     ];
 
-    public function assinaturas()
-
+    public function subscriptions()
     {
-        return $this->hasMany(assinaturas::class);
-        
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function prices()
+    {
+        return $this->hasMany(PlanPrice::class);
     }
 }

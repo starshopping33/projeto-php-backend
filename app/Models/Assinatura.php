@@ -4,32 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Plano;
-use App\Models\User;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Assinatura extends Model
+class Subscription extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'assinaturas';
+    protected $table = 'subscriptions';
 
     protected $fillable = [
         'user_id',
-        'plano_id',
+        'plan_id',
+        'plan_price_id',
         'status',
-        'data_inicio',
-        'data_fim',
-        'gateway_subscription_id'
+        'started_at',
+        'ends_at',
     ];
 
     protected $casts = [
-        'data_inicio' => 'datetime',
-        'data_fim'    => 'datetime',
+        'started_at' => 'datetime',
+        'ends_at'    => 'datetime',
     ];
 
-    public function plano()
+    public function plan()
     {
-        return $this->belongsTo(Plano::class);
+        return $this->belongsTo(Plan::class);
     }
 
     public function user()

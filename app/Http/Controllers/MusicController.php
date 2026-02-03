@@ -2,25 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
+use App\Services\LastFmService;
 
 class MusicController extends Controller
 {
+    private LastFmService $lastFm;
+
+    public function __construct(LastFmService $lastFm)
+    {
+        $this->lastFm = $lastFm;
+    }
+
     public function topTracks()
     {
-        $response = Http::get('https://ws.audioscrobbler.com/2.0/', [
-            'method'  => 'chart.gettoptracks',
-            'api_key' => config('services.lastfm.key'),
-            'format'  => 'json',
-            'limit'   => 20
-        ]);
+        $tracks = $this->lastFm->topTracks(20);
 
-        if ($response->failed()) {
-            abort(500, 'Erro ao buscar músicas');
-        }
+        return response()->json($tracks);
+    }
 
-        $tracks = $response->json()['tracks']['track'];
+    public function topTracksByTag($tag)
+    {
+        $tracks = $this->lastFm->topTracksByTag($tag, 20);
 
-        return view('musicas-populares', compact('tracks'));
+        return response()->json($tracks);
     }
 }
