@@ -25,6 +25,7 @@ class Planos extends Model
 
     public function prices()
     {
-        return $this->hasMany(PlanPrice::class);
+    return $this->hasMany(PlanPrice::class);
     }
+
 }
