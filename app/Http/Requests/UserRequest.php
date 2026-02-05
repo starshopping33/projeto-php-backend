@@ -16,7 +16,7 @@ class UserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[\p{L}\s\'-]+$/u'],
-            'email' => ['required', 'email:rfc,dns', 'unique:usuario,email', 'max:100'],
+            'email' => ['required', 'email:rfc,dns', 'unique:users,email', 'max:100'],
             'password' => ['required',
                 Password::min(8)
                     ->letters()

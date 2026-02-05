@@ -5,7 +5,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('usuario') -> group(function (){
+Route::prefix('user') -> group(function (){
     Route::get('', [UserController::class, 'listar']);
     Route::get('/{id}', [UserController::class, 'buscarId']);
     Route::post('/criar', [UserController::class, 'criar']);
