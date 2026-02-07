@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Requests\UpdatePasswordRequest;
 use App\Models\User;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -10,102 +11,86 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 use Throwable;
 
 class UserController extends Controller
 {
     public function listar()
     {
-        $usuarios = User::all();
+        $user = User::all();
 
-        return ResponseService::success('Listando usuários', $usuarios);
+        return ResponseService::success('Listando usuários', $user);
     }
 
     public function buscarId(int $id)
     {
-        $usuario = User::findOrFail($id);
-        return ResponseService::success("Usuário encontrado: $id", $usuario);
+        $user = User::findOrFail($id);
+
+        return ResponseService::success("Usuário encontrado: $id", $user);
     }
 
     public function criar(UserRequest $request)
     {
-        $usuario = User::criar($request->validated());
+        $user = User::criar($request->validated());
 
-        return ResponseService::success('Usuário criado com sucesso', $usuario, 201);
+        return ResponseService::success('Usuário criado com sucesso', $user);
     }
 
+    public function criarAdmin(UserRequest $request)
+    {
+        $user = User::criarAdmin($request->validated());
+
+        return ResponseService::success('Administrador criado com sucesso', $user);
+    }
 
     public function atualizar(UserRequest $request, int $id)
     {
-        $usuario = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
         $dados = $request->validated();
 
-        $usuario->atualizar($dados);
-
-        return ResponseService::success('Usuário atualizado com sucesso', $usuario);
+        $user->atualizar($dados);
+        
+        return ResponseService::success('Usuário atualizado com sucesso', $user);
     }
 
-    public function atualizarAcesso(Request $request, int $id)
+    public function atualizarSenha(UpdatePasswordRequest $request)
     {
-        try {
-            $usuario = User::find($id);
+        $user = $request->user();
 
-            if (!$usuario) {
-                return ResponseService::error('Usuário não encontrado', null, 404);
-            }
+        $dados = $request->validated();
 
-            $validate = $request->validate([
-                'role' => ['required', 'string', 'in:usuario,admin'],
-            ], [
-                'role.required' => 'O campo role é obrigatório.',
-                'role.in' => 'O role deve ser "usuario" ou "admin".',
-            ]);
-
-            $auth = Auth::user();
-            if ($auth && $auth->id === $usuario->id) {
-                return ResponseService::error('Alterar seu próprio nível de acesso não é permitido', null, 403);
-            }
-
-            $usuario->role = $validate['role'];
-            $usuario->save();
-
-            Log::info('Acesso de usuário atualizado', [
-                'admin_id' => $auth?->id,
-                'usuario_id' => $usuario->id,
-                'novo_role' => $usuario->role,
-            ]);
-
-            return ResponseService::success('Acesso do usuário atualizado com sucesso', $usuario);
-        } catch (ValidationException $ve) {
-            return ResponseService::error('Erro de validação', $ve->errors(), 422);
-        } catch (Throwable $e) {
-            Log::error('Erro em UsuarioController::atualizarAcesso - ' . $e->getMessage(), ['exception' => $e]);
-            return ResponseService::error('Erro interno ao atualizar acesso do usuário', null, 500);
-        }
+        $user->atualizarSenha($dados['password']);
+        
+        return ResponseService::success('Senha atualizada com sucesso',
+                ['user' => [
+            'name' => $user->name,
+            ]
+        ]);
     }
 
     public function deletar(int $id)
     {
-        $usuario = User::findOrFail($id);
-        $usuario->delete();
+        $user = User::findOrFail($id);
+        $user->delete();
         
         return ResponseService::success('Usuário deletado com sucesso', null);
     }
 
     public function destroy(int $id)
     {
-        $usuario = User::withTrashed()->findOrFail($id);
-        $usuario->forceDelete();
+        $user = User::withTrashed()->findOrFail($id);
+        $user->forceDelete();
 
         return ResponseService::success('Usuário destruído com sucesso', null);
     }
 
     public function restore(int $id)
     {
-        $usuario = User::withTrashed()->findOrFail($id);
-        $usuario->restore();
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
 
-        return ResponseService::success('Usuário restaurado com sucesso', $usuario);
+        return ResponseService::success('Usuário restaurado com sucesso', $user);
     }
 }
