@@ -6,6 +6,7 @@ use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlanPriceController ;
+use App\Http\Controllers\PaymentController ;
 
 
 
@@ -17,3 +18,4 @@ Route::post('/assinaturas', [AssinaturaController::class, 'store']);
 Route::post('/planos', [PlanoController::class, 'store']);
 Route::post('/usuarios', [UserController::class, 'store']);
 Route::post('/plan-prices', [PlanPriceController::class, 'store']);
+Route::post('/create-payment-intent', [PaymentController::class, 'createIntent']);
