@@ -11,7 +11,8 @@ Route::prefix('user') -> group(function (){
     Route::post('/criar', [UserController::class, 'criar']);
     Route::middleware('auth:sanctum')->put('/atualizar/{id}', [UserController::class, 'atualizar']);
     Route::middleware('auth:sanctum')->delete('/deletar/{id}', [UserController::class, 'deletar']);
-    Route::middleware(['auth:sanctum', 'admin'])->put('/atualizarAcesso/{id}', [UserController::class, 'atualizarAcesso']);
+    Route::middleware('auth:sanctum')->put('/atualizarSenha', [UserController::class, 'atualizarSenha']);
+    Route::middleware(['auth:sanctum', 'admin'])->post('/criarAdmin', [UserController::class, 'criarAdmin']);
     Route::middleware(['auth:sanctum', 'admin'])->delete('/destroy/{id}', [UserController::class, 'destroy']);
     Route::middleware(['auth:sanctum', 'admin'])->post('/restore/{id}', [UserController::class, 'restore']);
 });

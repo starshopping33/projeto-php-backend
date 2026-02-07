@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
-use App\Models\Login;
 use App\Services\ResponseService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -14,7 +13,7 @@ class LoginController extends Controller
     public function login(LoginRequest $request)
     {
        
-        $user = Login::login(
+        $user = User::login(
             $request->email,
             $request->password
         );
