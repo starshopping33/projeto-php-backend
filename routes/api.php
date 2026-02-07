@@ -16,8 +16,8 @@ Route::prefix('user') -> group(function (){
     Route::middleware(['auth:sanctum', 'admin'])->post('/restore/{id}', [UserController::class, 'restore']);
 });
 
-// Route::prefix('login') -> group(function (){
-//     Route::post('', [LoginController::class, 'login']);
-//     Route::middleware('auth:sanctum')->get('/verificarToken', [LoginController::class, 'verificarToken']);
-//     Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
-// });
+Route::prefix('login') -> group(function (){
+    Route::post('', [LoginController::class, 'login']);
+    Route::middleware('auth:sanctum')->get('/verificarToken', [LoginController::class, 'verificarToken']);
+    Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
+});
