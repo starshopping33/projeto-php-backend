@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use App\Http\Controllers\MusicController;
 use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\PlanoController;

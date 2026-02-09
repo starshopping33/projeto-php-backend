@@ -76,7 +76,6 @@ class User extends Model
        public static function login(string $email, string $password): self
     {
         $user = self::where('email', $email)
-            ->whereNull('deleted_at')
             ->first();
 
         if (!$user || !Hash::check($password, $user->password)) {

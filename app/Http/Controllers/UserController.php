@@ -6,13 +6,6 @@ use App\Http\Requests\UserRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Models\User;
 use App\Services\ResponseService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Rules\Password;
-use Throwable;
 
 class UserController extends Controller
 {
