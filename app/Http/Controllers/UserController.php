@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Http\Requests\UsuarioRequest;
+use App\Models\User;
 use App\Models\Usuario;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -12,49 +14,36 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
-class UsuarioController extends Controller
+class UserController extends Controller
 {
     public function listar()
     {
-        $usuarios = Usuario::all();
+        $usuarios = User::all();
 
         return ResponseService::success('Listando usuários', $usuarios);
     }
 
     public function buscarId(int $id)
     {
-        $usuario = Usuario::findOrFail($id);
+        $usuario = User::findOrFail($id);
         return ResponseService::success("Usuário encontrado: $id", $usuario);
     }
 
-    // public function criar(UsuarioRequest $request)
-    // {
-    //     $validate = $request->validated();
-
-    //     $usuario = new Usuario();
-    //     $usuario->nome = $validate['nome'];
-    //     $usuario->email = $validate['email'];
-    //     $usuario->senha = Hash::make($validate['senha']);
-    //     $usuario->acesso = $validate['acesso'] ?? 'usuario';
-    //     $usuario->save();
-
-    //     return ResponseService::success('Usuário criado com sucesso', $usuario, 201);
-    // }
-
-    public function atualizar(Request $request, int $id)
+    public function criar(UserRequest $request)
     {
-        $usuario = Usuario::findOrFail($id);
+        $usuario = User::criar($request->validated());
 
-        $validate = $request->validate([
-            'name' => ['sometimes', 'string', 'min:3', 'max:100', 'regex:/^[\p{L}\s\'-]+$/u'],
-            'email' => ['sometimes', 'email:rfc,dns', "unique:usuario,email,$id,id", 'max:100'],
-        ], [
-            'name.regex' => 'O nome pode conter apenas letras, espaços, hífens e apóstrofos.',
-            'email.email' => 'O email deve ser um endereço válido.',
-            'email.unique' => 'Este email já está registrado no sistema.',
-        ]);
+        return ResponseService::success('Usuário criado com sucesso', $usuario, 201);
+    }
 
-        $usuario->update($validate);
+
+    public function atualizar(UserRequest $request, int $id)
+    {
+        $usuario = User::findOrFail($id);
+
+        $dados = $request->validated();
+
+        $usuario->atualizar($dados);
 
         return ResponseService::success('Usuário atualizado com sucesso', $usuario);
     }
@@ -62,7 +51,7 @@ class UsuarioController extends Controller
     public function atualizarAcesso(Request $request, int $id)
     {
         try {
-            $usuario = Usuario::find($id);
+            $usuario = User::find($id);
 
             if (!$usuario) {
                 return ResponseService::error('Usuário não encontrado', null, 404);
@@ -100,7 +89,7 @@ class UsuarioController extends Controller
 
     public function deletar(int $id)
     {
-        $usuario = Usuario::findOrFail($id);
+        $usuario = User::findOrFail($id);
         $usuario->delete();
         
         return ResponseService::success('Usuário deletado com sucesso', null);
@@ -108,7 +97,7 @@ class UsuarioController extends Controller
 
     public function destroy(int $id)
     {
-        $usuario = Usuario::withTrashed()->findOrFail($id);
+        $usuario = User::withTrashed()->findOrFail($id);
         $usuario->forceDelete();
 
         return ResponseService::success('Usuário destruído com sucesso', null);
@@ -116,7 +105,7 @@ class UsuarioController extends Controller
 
     public function restore(int $id)
     {
-        $usuario = Usuario::withTrashed()->findOrFail($id);
+        $usuario = User::withTrashed()->findOrFail($id);
         $usuario->restore();
 
         return ResponseService::success('Usuário restaurado com sucesso', $usuario);
