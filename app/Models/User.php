@@ -49,6 +49,10 @@ class User extends Authenticatable
 
     public function atualizar(array $data): self
     {
+        if (array_key_exists('password', $data) && $data['password']) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
         $this->update($data);
 
         return $this;

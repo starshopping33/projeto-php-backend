@@ -94,8 +94,14 @@ class PlaylistController extends Controller
     public function deletar(int $id)
     {
         $playlist = Playlist::findOrFail($id);
+        $user = request()->user();
+
+        if (($playlist->user_id ?? null) !== ($user->id ?? null) && ($user->role ?? null) !== 'admin') {
+            return ResponseService::error('Acesso negado: propriedade do recurso inválida', null, 403);
+        }
+
         $playlist->delete();
-        
+
         return ResponseService::success('Playlist deletada com sucesso', null);
     }
 
