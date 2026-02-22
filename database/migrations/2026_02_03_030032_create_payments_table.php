@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
-            $table->foreignId('subscription_id')->constrained('subscriptions')->cascadeOnDelete();
+            $table->unsignedBigInteger('subscription_id');
             
             $table->string('provider', 50)->default('mercado_pago');
             $table->string('provider_payment_id')->nullable();
