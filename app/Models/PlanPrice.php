@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Planos; 
 
 class PlanPrice extends Model
 {
@@ -23,6 +24,6 @@ class PlanPrice extends Model
 
     public function plan()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(Planos::class);
     }
 }
