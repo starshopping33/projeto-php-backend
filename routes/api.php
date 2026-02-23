@@ -30,7 +30,7 @@ Route::prefix('login') -> group(function (){
 
 Route::get('/musicas/top', [MusicController::class, 'topTracks']);
 Route::get('/musicas/tag/{tag}', [MusicController::class, 'topTracksByTag']);
-
+Route::get('/plan-prices', [PlanPriceController::class, 'index']);
 Route::get('/getplanos', [PlanoController::class, 'index']);
 Route::post('/assinaturas', [AssinaturaController::class, 'store']);
 Route::post('/planos', [PlanoController::class, 'store']);

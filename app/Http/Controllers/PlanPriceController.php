@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Models\Plan;
+use App\Models\Plan; 
 use App\Models\PlanPrice;
 use Illuminate\Http\Request;
 
@@ -30,4 +29,15 @@ class PlanPriceController extends Controller
 
         return response()->json($price, 201);
     }
+
+    public function index()
+{
+    $prices = PlanPrice::with('plan')
+                ->where('is_active', true)
+                ->get();
+
+    return response()->json($prices);
+}
+
+
 }
