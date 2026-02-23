@@ -11,24 +11,27 @@ class AssinaturaController extends Controller
 {
     public function store(Request $request)
     {
+      
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
             'user_id' => 'required|exists:users,id',
+            'plan_price_id' => 'required|exists:plan_prices,id', 
         ]);
 
-        $plan = Plan::findOrFail($request->plan_id);
-
-        $startedAt = Carbon::now();
-        $endsAt    = Carbon::now()->addMonths(1); 
-
+      
         $subscription = Subscription::create([
-            'user_id'    => $request->user_id,
-            'plan_id'    => $plan->id,
-            'status'     => 'active',
-            'started_at' => $startedAt,
-            'ends_at'    => $endsAt,
+            'user_id'       => $request->user_id,
+            'plan_id'       => $request->plan_id,
+            'plan_price_id' => $request->plan_price_id, 
+            'status'        => 'active',
+            'started_at'    => Carbon::now(),
+            'ends_at'       => Carbon::now()->addMonth(),
         ]);
 
-        return response()->json($subscription, 201);
+     
+        return response()->json([
+            'message' => 'Assinatura criada com sucesso!',
+            'data'    => $subscription
+        ], 201);
     }
 }
