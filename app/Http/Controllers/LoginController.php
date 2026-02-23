@@ -17,15 +17,16 @@ class LoginController extends Controller
             $request->password
         );
 
-        return ResponseService::success('Login realizado com sucesso',
-        ['user' => [
-            'name' => $user->name,
-            ],
+        if (!$user) {
+            return ResponseService::error('Email ou senha incorretos');
+        }
+
+        return ResponseService::success('Login realizado com sucesso', [
+            'user' => ['name' => $user->name],
             'token' => $user->gerarToken()
         ]);
 
-        return ResponseService::error('Email ou senha incorretos');
-    }
+        }
 
     
     public function logout(Request $request)
