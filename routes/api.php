@@ -19,6 +19,7 @@ Route::prefix('user') -> group(function (){
     Route::middleware('auth:sanctum')->put('/atualizar/{id}', [UserController::class, 'atualizar']);
     Route::middleware('auth:sanctum')->delete('/deletar/{id}', [UserController::class, 'deletar']);
     Route::middleware('auth:sanctum')->put('/atualizarSenha', [UserController::class, 'atualizarSenha']);
+    Route::middleware('auth:sanctum')->put('/foto', [UserController::class, 'updatePhoto']);
     Route::middleware(['auth:sanctum', 'admin'])->post('/criarAdmin', [UserController::class, 'criarAdmin']);
     Route::middleware(['auth:sanctum', 'admin'])->delete('/destroy/{id}', [UserController::class, 'destroy']);
     Route::middleware(['auth:sanctum', 'admin'])->post('/restore/{id}', [UserController::class, 'restore']);
@@ -40,3 +41,33 @@ Route::post('/planos', [PlanoController::class, 'store']);
 Route::post('/usuarios', [UserController::class, 'store']);
 Route::post('/plan-prices', [PlanPriceController::class, 'store']);
 Route::post('/create-payment-intent', [PaymentController::class, 'createIntent']);
+
+Route::prefix('playlist')->group(function () {
+    Route::get('', [PlaylistController::class, 'listar']);
+    Route::get('/{id}', [PlaylistController::class, 'buscarId']);
+    Route::middleware('auth:sanctum')->post('/criar', [PlaylistController::class, 'criar']);
+    Route::middleware('auth:sanctum')->put('/atualizar/{id}', [PlaylistController::class, 'atualizar']);
+    Route::middleware('auth:sanctum')->delete('/deletar/{id}', [PlaylistController::class, 'deletar']);
+    Route::middleware(['auth:sanctum','admin'])->delete('/destroy/{id}', [PlaylistController::class, 'destroy']);
+    Route::middleware('auth:sanctum')->post('/restore/{id}', [PlaylistController::class, 'restore']);
+});
+
+Route::prefix('folder')->group(function () {
+    Route::get('', [FolderController::class, 'listar']);
+    Route::get('/{id}', [FolderController::class, 'buscarId']);
+    Route::middleware('auth:sanctum')->post('/criar', [FolderController::class, 'criar']);
+    Route::middleware('auth:sanctum')->put('/atualizar/{id}', [FolderController::class, 'atualizar']);
+    Route::middleware('auth:sanctum')->delete('/deletar/{id}', [FolderController::class, 'deletar']);
+    Route::middleware(['auth:sanctum','admin'])->delete('/destroy/{id}', [FolderController::class, 'destroy']);
+    Route::middleware('auth:sanctum')->post('/restore/{id}', [FolderController::class, 'restore']);
+});
+
+Route::prefix('favorite')->group(function () {
+    Route::get('', [FavoriteController::class, 'listar']);
+    Route::get('/{id}', [FavoriteController::class, 'buscarId']);
+    Route::middleware('auth:sanctum')->post('/criar', [FavoriteController::class, 'criar']);
+    Route::middleware('auth:sanctum')->put('/atualizar/{id}', [FavoriteController::class, 'atualizar']);
+    Route::middleware('auth:sanctum')->delete('/deletar/{id}', [FavoriteController::class, 'deletar']);
+    Route::middleware(['auth:sanctum','admin'])->delete('/destroy/{id}', [FavoriteController::class, 'destroy']);
+    Route::middleware('auth:sanctum')->post('/restore/{id}', [FavoriteController::class, 'restore']);
+});

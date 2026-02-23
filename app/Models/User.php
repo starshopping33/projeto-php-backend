@@ -21,7 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'profile_photo_base64'
     ];
     protected $hidden = ['password'];
     public $timestamps = true;
@@ -29,22 +30,55 @@ class User extends Authenticatable
 
     public static function criar(array $data): self
     {
+        if (!array_key_exists('profile_photo_base64', $data) || !$data['profile_photo_base64']) {
+            $data['profile_photo_base64'] = self::getRandomDefaultProfilePhotoBase64();
+        }
+
         return self::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'user'
+            'role' => $data['role'] ?? 'user',
+            'profile_photo_base64' => $data['profile_photo_base64']
         ]);
     }
 
     public static function criarAdmin(array $data): self
     {
+        if (!array_key_exists('profile_photo_base64', $data) || !$data['profile_photo_base64']) {
+            $data['profile_photo_base64'] = self::getRandomDefaultProfilePhotoBase64();
+        }
+
         return self::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'admin'
+            'role' => $data['role'] ?? 'admin',
+            'profile_photo_base64' => $data['profile_photo_base64']
         ]);
+    }
+
+    private static function getRandomDefaultProfilePhotoBase64(): string
+    {
+        $files = [
+            'music_avatar_1.svg',
+            'music_avatar_2.svg',
+            'music_avatar_3.svg',
+            'music_avatar_4.svg',
+            'music_avatar_5.svg',
+        ];
+
+        $filename = $files[array_rand($files)];
+        $path = public_path('images/default_profiles/' . $filename);
+
+        if (!file_exists($path)) {
+            return '';
+        }
+
+        $content = file_get_contents($path);
+
+        // SVG => use image/svg+xml mime
+        return 'data:image/svg+xml;base64,' . base64_encode($content);
     }
 
     public function atualizar(array $data): self
@@ -76,6 +110,21 @@ class User extends Authenticatable
     {
         return $this->hasOne(Subscription::class, 'user_id')
             ->where('status', 'active');
+    }
+
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class, 'user_id');
+    }
+
+    public function isPro(): bool
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->whereHas('plan', function ($query) {
+                $query->where('name', 'pro');
+            })
+            ->exists();
     }
 
     public function playlists(): HasMany
@@ -113,5 +162,77 @@ class User extends Authenticatable
     public function logout(): void
     {
         $this->tokens()->delete();
+    }
+
+    // --- Tier capability helpers ---
+
+    public function planTier(): ?int
+    {
+        $sub = $this->activeSubscription()->first();
+        return $sub && $sub->plan ? (int) ($sub->plan->tier ?? null) : null;
+    }
+
+    public function canLike(): bool
+    {
+        $tier = $this->planTier();
+        if ($tier === 2 || $tier === 3) {
+            return true; // Premium and Pro: unlimited
+        }
+
+        // tier 1 or null: up to 20 likes
+        $count = $this->favorites()->count();
+        return $count < 20;
+    }
+
+    public function remainingLikes(): ?int
+    {
+        $tier = $this->planTier();
+        if ($tier === 2 || $tier === 3) {
+            return null; // unlimited
+        }
+
+        $count = $this->favorites()->count();
+        return max(0, 20 - $count);
+    }
+
+    public function canCreatePlaylist(): bool
+    {
+        $tier = $this->planTier();
+        if ($tier === 2 || $tier === 3) {
+            return true; // Premium and Pro: unlimited
+        }
+
+        // Free: limit playlists (assume 5)
+        return $this->playlists()->count() < 5;
+    }
+
+    public function canUseTheme(): bool
+    {
+        $tier = $this->planTier();
+        return $tier === 2 || $tier === 3; // theme toggle for Premium+
+    }
+
+    public function hasHistoryFeature(): bool
+    {
+        $tier = $this->planTier();
+        return $tier === 2 || $tier === 3;
+    }
+
+    public function canAccessStats(): bool
+    {
+        $tier = $this->planTier();
+        return $tier === 3; // Pro only
+    }
+
+    public function canAddFavoriteArtist(): bool
+    {
+        $tier = $this->planTier();
+        return $tier === 3; // Pro only
+    }
+
+    public function canEditProfile(): bool
+    {
+        $tier = $this->planTier();
+        return $tier === 3; // Pro only (profile photo/name)
     }
 }
