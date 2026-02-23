@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\PhotoUserRequest;
 use App\Models\User;
 use App\Services\ResponseService;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -61,6 +63,20 @@ class UserController extends Controller
             'name' => $user->name,
             ]
         ]);
+    }
+
+    public function updatePhoto(PhotoUserRequest $request)
+    {
+        $user = $request->user();
+
+        if (!$user->isPro()) {
+            return ResponseService::error('Apenas usuários PRO podem alterar a foto de perfil.', null, 403);
+        }
+
+        $user->profile_photo_base64 = $request->profile_photo_base64;
+        $user->save();
+
+        return ResponseService::success('Foto de perfil atualizada com sucesso', $user);
     }
 
     public function deletar(int $id)
