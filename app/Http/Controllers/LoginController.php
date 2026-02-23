@@ -48,7 +48,7 @@ class LoginController extends Controller
 
         return ResponseService::success('Autenticado', [
             'usuario' => [
-                'nome' => $user->name,
+                'name' => $user->name,
                 'email' => $user->email,
             ]
         ]);

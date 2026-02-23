@@ -1,0 +1,56 @@
+STEP 7 results:
+Array
+(
+    [top] => Array
+        (
+            [code] => 500
+            [body] => Array
+                (
+                    [success] => 
+                    [message] => Erro ao obter top tracks
+                    [errors] => cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://ws.audioscrobbler.com/2.0/?format=json&method=chart.gettoptracks&limit=20
+                )
+
+        )
+
+    [tags] => Array
+        (
+            [rock] => Array
+                (
+                    [code] => 500
+                    [body] => Array
+                        (
+                            [success] => 
+                            [message] => Erro ao obter top tracks por tag
+                            [errors] => cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://ws.audioscrobbler.com/2.0/?format=json&method=tag.gettoptracks&tag=rock&limit=20
+                        )
+
+                )
+
+            [pop] => Array
+                (
+                    [code] => 500
+                    [body] => Array
+                        (
+                            [success] => 
+                            [message] => Erro ao obter top tracks por tag
+                            [errors] => cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://ws.audioscrobbler.com/2.0/?format=json&method=tag.gettoptracks&tag=pop&limit=20
+                        )
+
+                )
+
+            [jazz] => Array
+                (
+                    [code] => 500
+                    [body] => Array
+                        (
+                            [success] => 
+                            [message] => Erro ao obter top tracks por tag
+                            [errors] => cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://ws.audioscrobbler.com/2.0/?format=json&method=tag.gettoptracks&tag=jazz&limit=20
+                        )
+
+                )
+
+        )
+
+)

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+        if (! Schema::hasTable('payments')) {
+            Schema::create('payments', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id();
             $table->unsignedBigInteger('subscription_id');
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->json('raw_response')->nullable();
             $table->timestamps();
         });
+        }
 
     }
 

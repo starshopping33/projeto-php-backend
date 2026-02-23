@@ -8,6 +8,9 @@ use App\Http\Controllers\AssinaturaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\PlanPriceController ;
 use App\Http\Controllers\PaymentController ;
+use App\Http\Controllers\PlaylistController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\FolderController;
 
 Route::prefix('user') -> group(function (){
     Route::get('', [UserController::class, 'listar']);

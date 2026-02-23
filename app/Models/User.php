@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use App\Traits\SerializesDatetime;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 
-class User extends Model
+class User extends Authenticatable
 {
-    use SoftDeletes, HasApiTokens, SerializesDatetime;
+    use HasFactory, SoftDeletes, HasApiTokens, SerializesDatetime;
 
     protected $table = 'users';
     protected $primaryKey = 'id';
@@ -48,6 +49,10 @@ class User extends Model
 
     public function atualizar(array $data): self
     {
+        if (array_key_exists('password', $data) && $data['password']) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
         $this->update($data);
 
         return $this;
@@ -71,6 +76,21 @@ class User extends Model
     {
         return $this->hasOne(Subscription::class, 'user_id')
             ->where('status', 'active');
+    }
+
+    public function playlists(): HasMany
+    {
+        return $this->hasMany(Playlist::class, 'user_id');
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class, 'user_id');
+    }
+
+    public function folders(): HasMany
+    {
+        return $this->hasMany(Folder::class, 'user_id');
     }
 
        public static function login(string $email, string $password): self
