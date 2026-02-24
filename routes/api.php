@@ -36,11 +36,10 @@ Route::get('/musicas/top', [MusicController::class, 'topTracks']);
 Route::get('/musicas/tag/{tag}', [MusicController::class, 'topTracksByTag']);
 Route::get('/plan-prices', [PlanPriceController::class, 'index']);
 Route::get('/getplanos', [PlanoController::class, 'index']);
-Route::post('/assinaturas', [AssinaturaController::class, 'store']);
 Route::post('/planos', [PlanoController::class, 'store']);
 Route::post('/usuarios', [UserController::class, 'store']);
 Route::post('/plan-prices', [PlanPriceController::class, 'store']);
-Route::post('/create-payment-intent', [PaymentController::class, 'createIntent']);
+
 
 Route::prefix('playlist')->group(function () {
     Route::get('', [PlaylistController::class, 'listar']);
@@ -70,4 +69,9 @@ Route::prefix('favorite')->group(function () {
     Route::middleware('auth:sanctum')->delete('/deletar/{id}', [FavoriteController::class, 'deletar']);
     Route::middleware(['auth:sanctum','admin'])->delete('/destroy/{id}', [FavoriteController::class, 'destroy']);
     Route::middleware('auth:sanctum')->post('/restore/{id}', [FavoriteController::class, 'restore']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/assinaturas', [AssinaturaController::class, 'store']);
+    Route::post('/create-payment-intent', [PaymentController::class, 'createIntent']);
 });
