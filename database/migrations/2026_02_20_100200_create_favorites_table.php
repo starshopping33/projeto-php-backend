@@ -10,13 +10,32 @@ return new class extends Migration
     {
         Schema::create('favorites', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('music_id', 255)->notNullable();
-            $table->foreignId('playlist_id')->nullable()->constrained('playlists')->cascadeOnDelete();
+
+           
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+          
+            $table->string('music_id', 255);
+
+           
+            $table->string('music_name');
+            $table->string('artist_name');
+            $table->string('music_url')->nullable();
+            $table->string('image')->nullable();
+
+           
+           
+
             $table->softDeletes();
             $table->timestamps();
+
+          
             $table->index(['user_id']);
             $table->index(['music_id']);
+
+           
             $table->unique(['user_id', 'music_id']);
         });
     }

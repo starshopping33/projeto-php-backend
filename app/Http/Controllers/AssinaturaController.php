@@ -45,4 +45,24 @@ class AssinaturaController extends Controller
     ], 201);
 }
 
+public function check()
+{
+    $user = auth()->user();
+
+    $subscription = Subscription::where('user_id', $user->id)
+        ->where('status', 'active')
+        ->first();
+
+    if ($subscription) {
+        return response()->json([
+            'subscribed' => true,
+            'subscription' => $subscription
+        ]);
+    }
+
+    return response()->json([
+        'subscribed' => false
+    ]);
+}
+
 }

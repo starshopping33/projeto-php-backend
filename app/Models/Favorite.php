@@ -17,6 +17,10 @@ class Favorite extends Model
     protected $fillable = [
         'user_id',
         'music_id',
+        'music_name',
+        'artist_name',
+        'music_url',
+        'image',
         'playlist_id'
     ];
 

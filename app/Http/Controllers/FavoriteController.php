@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Http\Requests\FavoriteRequest;
 use App\Models\Favorite;
 use App\Services\ResponseService;
@@ -22,29 +23,58 @@ class FavoriteController extends Controller
         return ResponseService::success("Favorito encontrado: $id", $favorite);
     }
 
-    public function criar(FavoriteRequest $request)
-    {
-        $dados = $request->validated();
-        $dados['user_id'] = $request->user()->id;
-        $user = $request->user();
+    public function descurtir($music_id, FavoriteRequest $request)
+{
+    $favorite = $request->user()
+        ->favorites()
+        ->where('music_id', $music_id)
+        ->first();
 
-        $tier = 1;
-        $subscription = $user->activeSubscription;
-        if ($subscription && $subscription->plan) {
-            $tier = (int) $subscription->plan->tier;
-        }
+    if (!$favorite) {
+        return ResponseService::error('Música não está nos favoritos.', null, 404);
+    }
+
+    $favorite->delete();
+
+    return ResponseService::success('Música descurtida com sucesso');
+}
+
+    public function criar(FavoriteRequest $request)
+{
+    $user = $request->user();
+    $dados = $request->validated();
+    $dados['user_id'] = $user->id;
+
+   
+    $subscription = $user->activeSubscription;
+
+    if (!$subscription || !$subscription->plan) {
+        return ResponseService::error(
+            'Você precisa de um plano ativo para curtir músicas.',
+            null,
+            403
+        );
+    }
+
+    $tier = (int) $subscription->plan->tier;
 
         if ($tier === 1) {
-            $count = $user->favorites()->count();
-            if ($count >= 20) {
-                return ResponseService::error('Limite de músicas curtidas atingido para o seu plano', null, 403);
-            }
+        $favoritesCount = $user->favorites()->count();
+
+        if ($favoritesCount >= 5) {
+            return ResponseService::error(
+                'Limite de 5 músicas curtidas atingido para o plano Tier 1.',
+                null,
+                403
+            );
         }
-
-        $favorite = Favorite::criar($dados);
-
-        return ResponseService::success('Favorito criado com sucesso', $favorite);
     }
+        $favorite = Favorite::create($dados);
+
+    return ResponseService::success('Favorito criado com sucesso', $favorite);
+}
+
+
 
     public function atualizar(FavoriteRequest $request, int $id)
     {
