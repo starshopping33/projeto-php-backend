@@ -13,10 +13,31 @@ class FavoriteRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'music_id' => ['required', 'string', 'max:255'],
-            'playlist_id' => ['nullable', 'integer', 'exists:playlists,id'],
-        ];
+        if ($this->isMethod('delete')) {
+            return [
+                'music_id' => 'required|string'
+            ];
+        }
+
+        if ($this->isMethod('post')) {
+            return [
+                'music_id'   => 'required|string',
+                'music_name' => 'required|string',
+                'artist_name'=> 'required|string',
+            ];
+        }
+
+        return [];
+    }
+
+    protected function prepareForValidation()
+    {
+       
+        if ($this->isMethod('delete')) {
+            $this->merge([
+                'music_id' => $this->route('music_id')
+            ]);
+        }
     }
 
     public function messages(): array
