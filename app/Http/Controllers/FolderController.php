@@ -33,8 +33,7 @@ class FolderController extends Controller
         if ($subscription && $subscription->plan) {
             $tier = (int) $subscription->plan->tier;
         }
-
-        // Only Tier 3 (Pro) can create folders
+        
         if ($tier < 3) {
             return ResponseService::error('Criação de pastas é permitida apenas para o plano Pro', null, 403);
         }

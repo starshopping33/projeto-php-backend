@@ -19,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // middleware aliases are registered in app/Http/Kernel.php
+        //
     }
 }

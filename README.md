@@ -1,59 +1,141 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Projeto: projeto-php-backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Documentação do backend do projeto — API e serviços desenvolvidos em Laravel.
 
-## About Laravel
+**Stack principal**: PHP ^8.2, Laravel ^12, Sanctum (autenticação), Stripe (pagamentos).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Visão geral
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Este repositório contém o backend da aplicação — APIs REST, modelos Eloquent, serviços (ex.: integração com LastFM e Stripe) e comandos Artisan usados pelo projeto.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requisitos
 
-## Learning Laravel
+- PHP 8.2+
+- Composer
+- Node.js + npm (para assets quando aplicável)
+- Banco de dados (MySQL, MariaDB ou SQLite para desenvolvimento)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+As dependências principais estão em `composer.json` (Laravel ^12, Sanctum, Stripe).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalação rápida
 
-## Laravel Sponsors
+1. Clone o repositório:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+git clone <repo-url> projeto-php-backend
+cd projeto-php-backend
+```
 
-### Premium Partners
+2. Instale dependências PHP:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+composer install
+```
 
-## Contributing
+3. Copie o arquivo de ambiente e gere a chave:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+4. Configure variáveis de ambiente no `.env` (exemplos importantes):
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- `APP_ENV`, `APP_DEBUG`, `APP_URL`
+- `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `STRIPE_KEY`, `STRIPE_SECRET` (para pagamentos)
 
-## Security Vulnerabilities
+5. Execute migrações e seeders (se existirem):
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-## License
+6. Instale dependências JS e construa assets (quando necessário):
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+npm install
+npm run dev   # ou npm run build para produção
+```
+
+7. Inicie o servidor local:
+
+```bash
+php artisan serve
+```
+
+## Comandos úteis
+
+- `composer install` — instala dependências PHP
+- `php artisan migrate` — aplica migrações
+- `php artisan migrate:fresh --seed` — recria banco e popula
+- `php artisan tinker` — shell interativo
+- `php artisan test` — executa testes (PHPUnit)
+
+## Estrutura principal do projeto
+
+- `app/` — controladores, modelos, serviços e traits
+- `routes/` — rotas da aplicação (`api.php`, `web.php`)
+- `database/` — migrations, seeders e factories
+- `tests/` — testes automatizados
+- `config/` — configurações do Laravel e dos pacotes
+
+## Rotas e API
+
+As rotas API ficam em `routes/api.php`. Documente endpoints principais aqui quando for necessário (ex.: autenticação, CRUD de playlists, assinaturas, pagamentos).
+
+Exemplo de uso (Autenticação via Sanctum):
+
+- Registrar: `POST /api/register`
+- Login: `POST /api/login` (retorna token Sanctum)
+- Rotas autênticadas: enviar header `Authorization: Bearer <token>`
+
+Verifique `app/Http/Controllers` para exemplos de controladores já implementados.
+
+## Serviços integrados
+
+- `app/Services/LastFmService.php` — integração com LastFM para buscas/metadata
+- `app/Services/ResponseService.php` — helpers para formatação de respostas
+- Integração com Stripe via `stripe/stripe-php` em `composer.json` para processar pagamentos e assinaturas
+
+## Testes
+
+Execute a suíte de testes com:
+
+```bash
+php artisan test
+```
+
+Os testes estão em `tests/`. Use factories em `database/factories` para criar dados de teste.
+
+## Boas práticas e convenções
+
+- Use migrations para alterar esquema do banco
+- Valide requests com `FormRequest` em `app/Http/Requests`
+- Centralize lógica externa em `app/Services`
+
+## Deploy
+
+Etapas gerais para produção:
+
+1. Ajustar variáveis em `.env` (BD, Stripe, APP_ENV=production)
+2. `composer install --optimize-autoloader --no-dev`
+3. `php artisan migrate --force`
+4. `php artisan config:cache` e `php artisan route:cache`
+5. Construir assets (`npm run build`)
+
+## Contribuição
+
+1. Abra uma issue descrevendo a proposta ou bug
+2. Crie uma branch com nome descritivo
+3. Envie um pull request com descrição clara das mudanças
+
+## Contato
+
+Para dúvidas relacionadas ao projeto, contacte o mantenedor ou crie uma issue no repositório.
+
+## Licença
+
+Projeto licenciado sob MIT (ver `LICENSE` quando aplicável).
+
