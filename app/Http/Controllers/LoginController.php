@@ -23,7 +23,8 @@ class LoginController extends Controller
 
         return ResponseService::success('Login realizado com sucesso', [
             'user' => ['name' => $user->name],
-            'token' => $user->gerarToken()
+            'token' => $user->gerarToken(),
+            'id'   => $user->id,
         ]);
 
         }
