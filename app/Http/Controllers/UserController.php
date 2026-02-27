@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\PhotoUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Services\ResponseService;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +40,7 @@ class UserController extends Controller
         return ResponseService::success('Administrador criado com sucesso', $user);
     }
 
-    public function atualizar(UserRequest $request, int $id)
+    public function atualizar(UpdateUserRequest $request, int $id)
     {
         $user = User::findOrFail($id);
 
@@ -65,20 +66,33 @@ class UserController extends Controller
         ]);
     }
 
-    public function updatePhoto(PhotoUserRequest $request)
-    {
-        $user = $request->user();
+  public function updatePhoto(PhotoUserRequest $request)
+{
+    $user = $request->user();
 
-        if (!$user->isPro()) {
-            return ResponseService::error('Apenas usuários PRO podem alterar a foto de perfil.', null, 403);
-        }
-
-        $user->profile_photo_base64 = $request->profile_photo_base64;
-        $user->save();
-
-        return ResponseService::success('Foto de perfil atualizada com sucesso', $user);
+    
+    if (!$user->canEditProfile()) {
+        return ResponseService::error(
+            'Seu plano não permite alterar a foto de perfil.',
+            null,
+            403
+        );
     }
 
+   
+    $user->update([
+        'profile_photo_base64' => $request->profile_photo_base64
+    ]);
+
+    return ResponseService::success(
+        'Foto de perfil atualizada com sucesso.',
+        [
+            'id' => $user->id,
+            'name' => $user->name,
+            'profile_photo_base64' => $user->profile_photo_base64
+        ]
+    );
+}
     public function deletar(int $id)
     {
         $user = User::findOrFail($id);

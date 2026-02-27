@@ -31,10 +31,21 @@ Route::prefix('login') -> group(function (){
     Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
 });
 
+
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favoritos', [FavoriteController::class, 'listarFavoritosDoUsuario']);
 });
-Route::middleware('auth:sanctum')->get('/minha-assinatura', [AssinaturaController::class, 'check']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/assinatura', [AssinaturaController::class, 'store']);
+    Route::get('/minha-assinatura', [AssinaturaController::class, 'check']);
+    Route::post('/assinatura/cancel', [AssinaturaController::class, 'cancel']);
+    Route::post('/assinatura/upgrade', [AssinaturaController::class, 'upgrade']);
+});
+
+
 Route::get('/musicas/top', [MusicController::class, 'topTracks']);
 Route::get('/musicas/tag/{tag}', [MusicController::class, 'topTracksByTag']);
 Route::get('/plan-prices', [PlanPriceController::class, 'index']);
@@ -42,6 +53,42 @@ Route::get('/getplanos', [PlanoController::class, 'index']);
 Route::post('/planos', [PlanoController::class, 'store']);
 Route::post('/plan-prices', [PlanPriceController::class, 'store']);
 
+Route::middleware('auth:sanctum')->group(function () {
+
+    // Listar todas playlists
+    Route::get('/playlists', [PlaylistController::class, 'listar']);
+
+    // Criar playlist
+    Route::post('/playlists', [PlaylistController::class, 'criar']);
+
+    // Buscar playlist por ID
+    Route::get('/playlists/{id}', [PlaylistController::class, 'buscarId']);
+
+    // Atualizar playlist
+    Route::put('/playlists/{id}', [PlaylistController::class, 'atualizar']);
+
+    // Deletar playlist (soft delete)
+    Route::delete('/playlists/{id}', [PlaylistController::class, 'deletar']);
+
+    // Destruir playlist permanentemente
+    Route::delete('/playlists/{id}/destroy', [PlaylistController::class, 'destroy']);
+
+    // Restaurar playlist deletada
+    Route::post('/playlists/{id}/restore', [PlaylistController::class, 'restore']);
+
+    // -----------------------------
+    // Rotas para gerenciar músicas
+    // -----------------------------
+
+    // Listar músicas da playlist
+    Route::get('/playlists/{playlistId}/musicas', [PlaylistController::class, 'listarMusicas']);
+
+    // Adicionar música à playlist
+    Route::post('/playlists/{playlistId}/musicas', [PlaylistController::class, 'adicionarMusica']);
+
+    // Remover música da playlist
+    Route::delete('/playlists/{playlistId}/musicas/{musicId}', [PlaylistController::class, 'removerMusica']);
+});
 
 Route::prefix('playlist')->group(function () {
     Route::get('', [PlaylistController::class, 'listar']);

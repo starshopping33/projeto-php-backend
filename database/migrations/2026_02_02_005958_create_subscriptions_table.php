@@ -18,13 +18,7 @@ return new class extends Migration
             $table->foreignId('plan_id')->constrained('plans');
             $table->foreignId('plan_price_id')->constrained('plan_prices');
 
-            $table->enum('status', [
-                'pending',
-                'active',
-                'canceled',
-                'expired'
-            ])->default('pending');
-
+            $table->string('status')->default('pending');
             $table->dateTime('started_at')->notNullable();
             $table->dateTime('ends_at')->nullable();
             $table->softDeletes();

@@ -9,6 +9,7 @@ use App\Services\ResponseService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
 
+
 class FavoriteController extends Controller
 {
     public function listar()
@@ -18,15 +19,27 @@ class FavoriteController extends Controller
         return ResponseService::success('Listando favoritos', $favorites);
     }
 
-   public function listarFavoritosDoUsuario()
+public function listarFavoritosDoUsuario()
 {
-    return response()->json([
-        'auth_check' => Auth::check(),
-        'user' => Auth::user(),
-        'id' => optional(Auth::user())->id
-    ]);
-}
+    $user = Auth::user();
 
+    if (!$user) {
+        return ResponseService::error(
+            'Usuário não autenticado',
+            null,
+            401
+        );
+    }
+
+    $favoritas = Favorite::where('user_id', $user->id)
+        ->latest()
+        ->get();
+
+    return ResponseService::success(
+        'Favoritos do usuário',
+        $favoritas
+    );
+}
     public function descurtir($musicId, Request $request)
 {
     $user = $request->user();

@@ -80,6 +80,8 @@ class User extends Authenticatable
         return 'data:image/svg+xml;base64,' . base64_encode($content);
     }
 
+    
+
     public function atualizar(array $data): self
     {
         if (array_key_exists('password', $data) && $data['password']) {
@@ -99,6 +101,12 @@ class User extends Authenticatable
 
         return $this;
     }
+
+    public function isPremium(): bool
+{
+    $tier = $this->planTier();
+    return $tier === 2 || $tier === 3;
+}
     
 
     public function subscriptions(): HasMany
@@ -226,9 +234,10 @@ class User extends Authenticatable
         return $tier === 3;
     }
 
-    public function canEditProfile(): bool
-    {
-        $tier = $this->planTier();
-        return $tier === 3;
-    }
+   public function canEditProfile(): bool
+{
+    $tier = $this->planTier();
+    return $tier === 2 || $tier === 3;
 }
+}
+
