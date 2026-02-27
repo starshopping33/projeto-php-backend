@@ -18,6 +18,10 @@ class Planos extends Model
         'is_active'
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean'
+    ];
+
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
@@ -25,7 +29,27 @@ class Planos extends Model
 
     public function prices()
     {
-    return $this->hasMany(PlanPrice::class);
+        return $this->hasMany(PlanPrice::class);
     }
 
+   
+
+    public static function tierJaExiste($tier)
+    {
+        return self::where('tier', $tier)->exists();
+    }
+
+    public static function planoAtivoNoTier($tier)
+    {
+        return self::where('tier', $tier)
+            ->where('is_active', true)
+            ->exists();
+    }
+
+    public function possuiAssinaturasAtivas()
+    {
+        return $this->subscriptions()
+            ->where('status', 'ativa')
+            ->exists();
+    }
 }
