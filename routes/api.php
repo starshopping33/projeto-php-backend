@@ -31,6 +31,9 @@ Route::prefix('login') -> group(function (){
     Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/favoritos', [FavoriteController::class, 'listarFavoritosDoUsuario']);
+});
 Route::middleware('auth:sanctum')->get('/minha-assinatura', [AssinaturaController::class, 'check']);
 Route::get('/musicas/top', [MusicController::class, 'topTracks']);
 Route::get('/musicas/tag/{tag}', [MusicController::class, 'topTracksByTag']);
@@ -62,7 +65,7 @@ Route::prefix('folder')->group(function () {
 
 Route::prefix('favorite')->group(function () {
     Route::get('', [FavoriteController::class, 'listar']);
-    Route::get('/{id}', [FavoriteController::class, 'buscarId']);
+    
     Route::middleware('auth:sanctum')->post('/criar', [FavoriteController::class, 'criar']);
     Route::middleware('auth:sanctum')->put('/atualizar/{id}', [FavoriteController::class, 'atualizar']);
     Route::middleware('auth:sanctum')->delete('/descurtir/{music_id}', [FavoriteController::class, 'descurtir']);

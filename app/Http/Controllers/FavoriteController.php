@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FavoriteRequest;
 use App\Models\Favorite;
 use App\Services\ResponseService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request; 
 
 class FavoriteController extends Controller
 {
@@ -16,36 +18,43 @@ class FavoriteController extends Controller
         return ResponseService::success('Listando favoritos', $favorites);
     }
 
-    public function buscarId(int $id)
-    {
-        $favorite = Favorite::findOrFail($id);
-
-        return ResponseService::success("Favorito encontrado: $id", $favorite);
-    }
-
-    public function descurtir($music_id, FavoriteRequest $request)
+   public function listarFavoritosDoUsuario()
 {
-    $favorite = $request->user()
-        ->favorites()
-        ->where('music_id', $music_id)
+    return response()->json([
+        'auth_check' => Auth::check(),
+        'user' => Auth::user(),
+        'id' => optional(Auth::user())->id
+    ]);
+}
+
+    public function descurtir($musicId, Request $request)
+{
+    $user = $request->user();
+
+    $favorite = Favorite::where('user_id', $user->id)
+        ->where('music_id', $musicId)
         ->first();
 
     if (!$favorite) {
-        return ResponseService::error('Música não está nos favoritos.', null, 404);
+        return ResponseService::error(
+            'Música não está nos favoritos.',
+            null,
+            404
+        );
     }
 
-    $favorite->delete();
+    $favorite->forceDelete(); 
 
-    return ResponseService::success('Música descurtida com sucesso');
+    return ResponseService::success(
+        'Música removida dos favoritos.'
+    );
 }
 
-    public function criar(FavoriteRequest $request)
+   public function criar(FavoriteRequest $request)
 {
     $user = $request->user();
     $dados = $request->validated();
-    $dados['user_id'] = $user->id;
 
-   
     $subscription = $user->activeSubscription;
 
     if (!$subscription || !$subscription->plan) {
@@ -58,10 +67,16 @@ class FavoriteController extends Controller
 
     $tier = (int) $subscription->plan->tier;
 
-        if ($tier === 1) {
+    if ($tier === 1) {
+
         $favoritesCount = $user->favorites()->count();
 
-        if ($favoritesCount >= 5) {
+      
+        $jaExiste = Favorite::where('user_id', $user->id)
+            ->where('music_id', $dados['music_id'])
+            ->exists();
+
+        if (!$jaExiste && $favoritesCount >= 5) {
             return ResponseService::error(
                 'Limite de 5 músicas curtidas atingido para o plano Tier 1.',
                 null,
@@ -69,12 +84,24 @@ class FavoriteController extends Controller
             );
         }
     }
-        $favorite = Favorite::create($dados);
 
-    return ResponseService::success('Favorito criado com sucesso', $favorite);
+   
+    $favorite = Favorite::updateOrCreate(
+        [
+            'user_id' => $user->id,
+            'music_id' => $dados['music_id'],
+        ],
+        [
+            'music_name' => $dados['music_name'],
+            'artist_name' => $dados['artist_name'],
+        ]
+    );
+
+    return ResponseService::success(
+        'Favorito salvo com sucesso',
+        $favorite
+    );
 }
-
-
 
     public function atualizar(FavoriteRequest $request, int $id)
     {
