@@ -77,7 +77,6 @@ class User extends Authenticatable
 
         $content = file_get_contents($path);
 
-        // SVG => use image/svg+xml mime
         return 'data:image/svg+xml;base64,' . base64_encode($content);
     }
 
@@ -100,6 +99,7 @@ class User extends Authenticatable
 
         return $this;
     }
+    
 
     public function subscriptions(): HasMany
     {
@@ -164,8 +164,6 @@ class User extends Authenticatable
         $this->tokens()->delete();
     }
 
-    // --- Tier capability helpers ---
-
     public function planTier(): ?int
     {
         $sub = $this->activeSubscription()->first();
@@ -176,10 +174,9 @@ class User extends Authenticatable
     {
         $tier = $this->planTier();
         if ($tier === 2 || $tier === 3) {
-            return true; // Premium and Pro: unlimited
+            return true;
         }
 
-        // tier 1 or null: up to 20 likes
         $count = $this->favorites()->count();
         return $count < 20;
     }
@@ -188,7 +185,7 @@ class User extends Authenticatable
     {
         $tier = $this->planTier();
         if ($tier === 2 || $tier === 3) {
-            return null; // unlimited
+            return null;
         }
 
         $count = $this->favorites()->count();
@@ -199,17 +196,16 @@ class User extends Authenticatable
     {
         $tier = $this->planTier();
         if ($tier === 2 || $tier === 3) {
-            return true; // Premium and Pro: unlimited
+            return true;
         }
 
-        // Free: limit playlists (assume 5)
         return $this->playlists()->count() < 5;
     }
 
     public function canUseTheme(): bool
     {
         $tier = $this->planTier();
-        return $tier === 2 || $tier === 3; // theme toggle for Premium+
+        return $tier === 2 || $tier === 3;
     }
 
     public function hasHistoryFeature(): bool
@@ -221,18 +217,18 @@ class User extends Authenticatable
     public function canAccessStats(): bool
     {
         $tier = $this->planTier();
-        return $tier === 3; // Pro only
+        return $tier === 3;
     }
 
     public function canAddFavoriteArtist(): bool
     {
         $tier = $this->planTier();
-        return $tier === 3; // Pro only
+        return $tier === 3;
     }
 
     public function canEditProfile(): bool
     {
         $tier = $this->planTier();
-        return $tier === 3; // Pro only (profile photo/name)
+        return $tier === 3;
     }
 }
