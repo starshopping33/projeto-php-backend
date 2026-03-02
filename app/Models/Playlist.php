@@ -4,13 +4,13 @@ namespace App\Models;
 
 use App\Traits\SerializesDatetime;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Playlist extends Model
 {
-    use SoftDeletes, SerializesDatetime;
+    
 
     protected $table = 'playlists';
     protected $primaryKey = 'id';
@@ -43,6 +43,11 @@ class Playlist extends Model
 
         return $this;
     }
+
+public function musicas()
+{
+    return $this->hasMany(PlaylistMusic::class);
+}
 
     public function user(): BelongsTo
     {

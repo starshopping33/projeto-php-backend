@@ -12,11 +12,17 @@ use Illuminate\Support\Facades\Auth;
 class PlaylistController extends Controller
 {
     
-    public function listar()
-    {
-        $playlists = Playlist::all();
-        return ResponseService::success('Listando playlists', $playlists);
-    }
+    public function listar(Request $request)
+{
+    $user = $request->user();
+
+    $playlists = $user->playlists()->with('musicas')->get();
+
+    return ResponseService::success(
+        'Playlists do usuário',
+        $playlists
+    );
+}
 
    
     public function buscarId(int $id)
@@ -27,29 +33,38 @@ class PlaylistController extends Controller
 
     
     public function criar(PlaylistRequest $request)
-    {
-        $dados = $request->validated();
-        $user = $request->user();
-        $dados['user_id'] = $user->id;
+{
+    $dados = $request->validated();
+    $user = $request->user();
+    $dados['user_id'] = $user->id;
 
-        $tier = 1;
-        $subscription = $user->activeSubscription;
-        if ($subscription && $subscription->plan) {
-            $tier = (int) $subscription->plan->tier;
-        }
 
-        if ($tier === 2) {
-            $count = $user->playlists()->count();
-            if ($count >= 20) {
-                return ResponseService::error('Limite de playlists atingido para o seu plano', null, 403);
-            }
-            unset($dados['cover'], $dados['is_collaborative'], $dados['folder_id']);
-        }
+    $tier = 1; 
 
-        $playlist = Playlist::create($dados);
-        return ResponseService::success('Playlist criada com sucesso', $playlist);
+    $subscription = $user->activeSubscription;
+
+    if ($subscription && $subscription->plan) {
+        $tier = (int) $subscription->plan->tier;
     }
 
+   
+    $count = $user->playlists()->count();
+
+    if ($tier === 1 && $count >= 1) {
+        return ResponseService::error(
+            'Seu plano permite apenas 1 playlist. Faça upgrade.',
+            null,
+            403
+        );
+    }
+
+    $playlist = Playlist::create($dados);
+
+    return ResponseService::success(
+        'Playlist criada com sucesso',
+        $playlist
+    );
+}
    
     public function atualizar(PlaylistRequest $request, int $id)
     {
@@ -123,39 +138,51 @@ class PlaylistController extends Controller
         return ResponseService::success('Músicas da playlist', $playlist->musicas);
     }
 
-    public function adicionarMusica(int $playlistId, Request $request)
-    {
-        $playlist = Playlist::findOrFail($playlistId);
-        $user = $request->user();
+public function adicionarMusica(int $playlistId, Request $request)
+{
+    $playlist = Playlist::findOrFail($playlistId);
+    $user = $request->user();
 
-        if ($playlist->user_id !== $user->id && $user->role !== 'admin') {
-            return ResponseService::error('Acesso negado', null, 403);
-        }
-
-        $dados = $request->validate([
-            'music_id' => 'required|exists:musics,id',
-        ]);
-
-        
-        if ($playlist->musicas()->where('music_id', $dados['music_id'])->exists()) {
-            return ResponseService::error('Música já está na playlist', null, 409);
-        }
-
-        $playlist->musicas()->attach($dados['music_id']);
-        return ResponseService::success('Música adicionada à playlist com sucesso', $playlist->load('musicas'));
+    if ($playlist->user_id !== $user->id && $user->role !== 'admin') {
+        return ResponseService::error('Acesso negado', null, 403);
     }
 
+    $dados = $request->validate([
+        'music_id' => 'required|string',
+        'music_name' => 'required|string',
+        'artist_name' => 'required|string',
+        'music_url' => 'nullable|string',
+        'image' => 'nullable|string'
+    ]);
+
+    if ($playlist->musicas()->where('music_id', $dados['music_id'])->exists()) {
+        return ResponseService::error('Música já está na playlist', null, 409);
+    }
+
+    $playlist->musicas()->create($dados);
+
+    return ResponseService::success(
+        'Música adicionada com sucesso',
+        $playlist->load('musicas')
+    );
+}
  
-    public function removerMusica(int $playlistId, int $musicId, Request $request)
-    {
-        $playlist = Playlist::findOrFail($playlistId);
-        $user = $request->user();
+   public function removerMusica(int $playlistId, int $musicaId, Request $request)
+{
+    $playlist = Playlist::findOrFail($playlistId);
 
-        if ($playlist->user_id !== $user->id && $user->role !== 'admin') {
-            return ResponseService::error('Acesso negado', null, 403);
-        }
+    $musica = $playlist->musicas()->find($musicaId);
 
-        $playlist->musicas()->detach($musicId);
-        return ResponseService::success('Música removida da playlist com sucesso', $playlist->load('musicas'));
+    if (!$musica) {
+        return ResponseService::error('Música não encontrada', null, 404);
     }
+
+    $musica->delete();
+
+    return ResponseService::success(
+        'Música removida com sucesso',
+        $playlist->load('musicas')
+    );
+}
+
 }

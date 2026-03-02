@@ -53,51 +53,24 @@ Route::get('/getplanos', [PlanoController::class, 'index']);
 Route::post('/planos', [PlanoController::class, 'store']);
 Route::post('/plan-prices', [PlanPriceController::class, 'store']);
 
-Route::middleware('auth:sanctum')->group(function () {
 
-    // Listar todas playlists
-    Route::get('/playlists', [PlaylistController::class, 'listar']);
-
-    // Criar playlist
-    Route::post('/playlists', [PlaylistController::class, 'criar']);
-
-    // Buscar playlist por ID
-    Route::get('/playlists/{id}', [PlaylistController::class, 'buscarId']);
-
-    // Atualizar playlist
-    Route::put('/playlists/{id}', [PlaylistController::class, 'atualizar']);
-
-    // Deletar playlist (soft delete)
-    Route::delete('/playlists/{id}', [PlaylistController::class, 'deletar']);
-
-    // Destruir playlist permanentemente
-    Route::delete('/playlists/{id}/destroy', [PlaylistController::class, 'destroy']);
-
-    // Restaurar playlist deletada
-    Route::post('/playlists/{id}/restore', [PlaylistController::class, 'restore']);
-
-    // -----------------------------
-    // Rotas para gerenciar músicas
-    // -----------------------------
-
-    // Listar músicas da playlist
-    Route::get('/playlists/{playlistId}/musicas', [PlaylistController::class, 'listarMusicas']);
-
-    // Adicionar música à playlist
-    Route::post('/playlists/{playlistId}/musicas', [PlaylistController::class, 'adicionarMusica']);
-
-    // Remover música da playlist
-    Route::delete('/playlists/{playlistId}/musicas/{musicId}', [PlaylistController::class, 'removerMusica']);
-});
 
 Route::prefix('playlist')->group(function () {
-    Route::get('', [PlaylistController::class, 'listar']);
+
+    
     Route::get('/{id}', [PlaylistController::class, 'buscarId']);
+
+    Route::middleware('auth:sanctum')->get('/', [PlaylistController::class, 'listar']);
     Route::middleware('auth:sanctum')->post('/criar', [PlaylistController::class, 'criar']);
     Route::middleware('auth:sanctum')->put('/atualizar/{id}', [PlaylistController::class, 'atualizar']);
     Route::middleware('auth:sanctum')->delete('/deletar/{id}', [PlaylistController::class, 'deletar']);
     Route::middleware(['auth:sanctum','admin'])->delete('/destroy/{id}', [PlaylistController::class, 'destroy']);
     Route::middleware('auth:sanctum')->post('/restore/{id}', [PlaylistController::class, 'restore']);
+
+    
+    Route::middleware('auth:sanctum')->post('/{playlistId}/musicas', [PlaylistController::class, 'adicionarMusica']);
+    Route::middleware('auth:sanctum')->get('/{playlistId}/musicas', [PlaylistController::class, 'listarMusicas']);
+    Route::middleware('auth:sanctum')->delete('/{playlistId}/musicas/{musicId}', [PlaylistController::class, 'removerMusica']);
 });
 
 Route::prefix('folder')->group(function () {
